@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: insurance-predictor
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn insurance.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
