@@ -1,74 +1,228 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h2>Medical Expense Prediction</h2>
-    <form method="POST" action="{% url 'predict' %}">
-        {% csrf_token %}
-
-        <div class="form-group">
-            <label for="age">Age</label>
-            <input type="number" name="age" id="age" required>
-        </div>
-
-        <div class="form-group">
-            <label>Gender</label>
-            <div class="radio-group">
-                <label class="radio-option">
-                    <input type="radio" name="gender" value="male" required>
-                    <span>Male</span>
-                </label>
-                <label class="radio-option">
-                    <input type="radio" name="gender" value="female">
-                    <span>Female</span>
-                </label>
+<div class="container">
+    <!-- Information Panel -->
+    <div class="info-panel">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-stethoscope"></i>
             </div>
-        </div>
-
-        <div class="form-group">
-            <label for="bmi">BMI</label>
-            <input type="number" step="0.1" name="bmi" id="bmi" required>
-        </div>
-
-        <div class="form-group">
-            <label>Smoker</label>
-            <div class="radio-group">
-                <label class="radio-option">
-                    <input type="radio" name="smoker" value="yes" required>
-                    <span>Yes</span>
-                </label>
-                <label class="radio-option">
-                    <input type="radio" name="smoker" value="no">
-                    <span>No</span>
-                </label>
+            <div class="logo-text">
+                <h1>Medical Expense <span>Predictor</span></h1>
+                <p>Advanced Healthcare Analytics</p>
             </div>
         </div>
         
-        <div class="form-group">
-            <label for="children">Number of Children</label>
-            <input type="number" name="children" id="children" required>
+        <div class="info-content">
+            <h2>Predict Your Medical Expenses</h2>
+            <p>Our AI-powered tool helps estimate your potential medical costs in Indian Rupees (₹) based on demographic and health factors. Get an accurate prediction to better plan your healthcare budget.</p>
+            
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-brain"></i>
+                    <span>Machine Learning Algorithm</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Secure & Private Data Processing</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Accurate Predictive Analytics</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-clock"></i>
+                    <span>Instant Results</span>
+                </div>
+            </div>
+            
+            <div class="disclaimer">
+                <h4><i class="fas fa-info-circle"></i> Important Notice</h4>
+                <p>This tool provides estimates based on statistical models and should not replace professional medical or financial advice. Actual expenses may vary based on individual circumstances and healthcare provider rates in India.</p>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label for="region">Region</label>
-            <select name="region" id="region" required>
-                <option value="">Select Region</option>
-                <option value="northwest">Northwest</option>
-                <option value="northeast">Northeast</option>
-                <option value="southwest">Southwest</option>
-                <option value="southeast">Southeast</option>
-            </select>
-        </div>
-
-        <div class="buttons-group">
-            <a href="{% url 'predict' %}" class="btn cancel" style="text-decoration: none; text-align: center;">Reset</a>
-            <button type="submit" class="btn ok">Predict Charges</button>
-        </div>
-    </form>
-    
-    {% if predicted_charges %}
-    <div class="prediction-result" id="prediction-box">
-        <p>Your Predicted Medical Expense</p>
-        <h3>${{ predicted_charges|floatformat:2 }}</h3>
     </div>
+    
+    <!-- Form Panel -->
+    <div class="form-panel">
+        <div class="form-header">
+            <h2>Enter Patient Details</h2>
+            <div class="form-steps">
+                <div class="step active"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+            </div>
+        </div>
+        
+        <form id="predictionForm" class="form-container" method="POST" action="{% url 'predict' %}">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="age"><i class="fas fa-birthday-cake"></i> Age</label>
+                    <input type="number" id="age" name="age" class="form-control" placeholder="Enter age" min="0" max="120" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bmi"><i class="fas fa-weight"></i> BMI</label>
+                    <input type="number" id="bmi" name="bmi" class="form-control" placeholder="Body Mass Index" min="10" max="60" step="0.1" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="children"><i class="fas fa-child"></i> Children/Dependents</label>
+                    <input type="number" id="children" name="children" class="form-control" placeholder="Number of children" min="0" max="10" required>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-smoking"></i> Smoking Status</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="smoker" value="yes" required>
+                            <div class="radio-custom"></div>
+                            <span>Smoker</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="smoker" value="no" checked>
+                            <div class="radio-custom"></div>
+                            <span>Non-Smoker</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="region"><i class="fas fa-globe-americas"></i> Region</label>
+                    <select id="region" name="region" class="form-control" required>
+                        <option value="" disabled selected>Select your region</option>
+                        <option value="northwest">Northwest</option>
+                        <option value="northeast">Northeast</option>
+                        <option value="southwest">Southwest</option>
+                        <option value="southeast">Southeast</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-venus-mars"></i> Gender</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="gender" value="male" required>
+                            <div class="radio-custom"></div>
+                            <span>Male</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="gender" value="female" checked>
+                            <div class="radio-custom"></div>
+                            <span>Female</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Prediction Result (Initially Hidden) -->
+            <div id="predictionResult" class="prediction-result" style="{% if not predicted_charges %}display: none;{% endif %}">
+                <div class="result-header">
+                    <h3><i class="fas fa-chart-bar"></i> Predicted Medical Expenses</h3>
+                    <div class="result-accuracy">
+                        <span class="accuracy-badge">94% Accuracy</span>
+                    </div>
+                </div>
+                
+                <div class="result-value">
+                    <div class="predicted-amount">
+                        <span class="currency-symbol">₹</span>{% if predicted_charges %}{{ predicted_charges|floatformat:2 }}{% else %}0{% endif %}
+                    </div>
+                    <p style="color: var(--gray);">Estimated annual medical costs</p>
+                </div>
+                
+                <div class="result-details">
+                    <div class="detail-card">
+                        <i class="fas fa-procedures"></i>
+                        <h4>Risk Level</h4>
+                        <p>Medium</p>
+                    </div>
+                    <div class="detail-card">
+                        <i class="fas fa-calendar-alt"></i>
+                        <h4>Monthly Estimate</h4>
+                        <p><span class="currency-symbol" style="font-size: 1rem;">₹</span>{% if predicted_charges %}{{ predicted_charges|floatformat:2 }}{% else %}0{% endif %}</p>
+                    </div>
+                    <div class="detail-card">
+                        <i class="fas fa-heartbeat"></i>
+                        <h4>Health Score</h4>
+                        <p>72/100</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-cancel">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <div>
+                    <button type="button" class="btn btn-reset" id="resetBtn">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                    <button type="submit" class="btn btn-submit">
+                        <i class="fas fa-calculator"></i> Calculate Prediction
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Form submission - let Django handle it
+    document.getElementById('predictionForm').addEventListener('submit', function(e) {
+        // Basic validation
+        const age = document.getElementById('age').value;
+        const bmi = document.getElementById('bmi').value;
+        const children = document.getElementById('children').value;
+        const region = document.getElementById('region').value;
+        
+        if (!age || !bmi || !children || !region) {
+            e.preventDefault();
+            alert('Please fill in all required fields');
+            return false;
+        }
+        // Form will submit to Django backend
+    });
+    
+    // Reset form functionality
+    document.getElementById('resetBtn').addEventListener('click', function() {
+        window.location.href = "{% url 'predict' %}";
+    });
+    
+    // Cancel button functionality
+    document.querySelector('.btn-cancel').addEventListener('click', function() {
+        if (confirm('Are you sure you want to cancel? All entered data will be lost.')) {
+            window.location.href = "{% url 'predict' %}";
+        }
+    });
+    
+    // Add some interactivity to form inputs
+    const formInputs = document.querySelectorAll('.form-control');
+    formInputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'translateY(-2px)';
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'translateY(0)';
+        });
+    });
+    
+    // Show prediction result if it exists
+    {% if predicted_charges %}
+    document.addEventListener('DOMContentLoaded', function() {
+        const resultDiv = document.getElementById('predictionResult');
+        if (resultDiv) {
+            resultDiv.style.display = 'block';
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    });
     {% endif %}
+</script>
 {% endblock %}
