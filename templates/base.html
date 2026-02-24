@@ -543,7 +543,8 @@
                 </div>
             </div>
             
-            <form id="predictionForm" class="form-container">
+            <form id="predictionForm" class="form-container" method="POST" action="{% url 'predict' %}">
+                {% csrf_token %}
                 <div class="form-row">
                     <div class="form-group">
                         <label for="age"><i class="fas fa-birthday-cake"></i> Age</label>
@@ -611,7 +612,7 @@
                 </div>
                 
                 <!-- Prediction Result (Initially Hidden) -->
-                <div id="predictionResult" class="prediction-result">
+                <div id="predictionResult" class="prediction-result" style="{% if not predicted_charges %}display: none;{% endif %}">
                     <div class="result-header">
                         <h3><i class="fas fa-chart-bar"></i> Predicted Medical Expenses</h3>
                         <div class="result-accuracy">
@@ -621,9 +622,9 @@
                     
                     <div class="result-value">
                         <div class="predicted-amount">
-                            <span class="currency-symbol">₹</span>5,42,800
+                            <span class="currency-symbol">$</span>{% if predicted_charges %}{{ predicted_charges|floatformat:2 }}{% else %}0{% endif %}
                         </div>
-                        <p style="color: var(--gray);">Estimated annual medical costs in Indian Rupees</p>
+                        <p style="color: var(--gray);">Estimated annual medical costs</p>
                     </div>
                     
                     <div class="result-details">
@@ -635,7 +636,7 @@
                         <div class="detail-card">
                             <i class="fas fa-calendar-alt"></i>
                             <h4>Monthly Estimate</h4>
-                            <p><span class="currency-symbol" style="font-size: 1rem;">₹</span>45,233</p>
+                            <p><span class="currency-symbol" style="font-size: 1rem;">$</span>{% if predicted_charges %}{{ predicted_charges|floatformat:2|add:"0"|floatformat:0|divisibleby:12 }}{% else %}0{% endif %}</p>
                         </div>
                         <div class="detail-card">
                             <i class="fas fa-heartbeat"></i>
@@ -663,128 +664,37 @@
     </div>
 
     <script>
+        // Form submission - let Django handle it
         document.getElementById('predictionForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get form values
+            // Basic validation
             const age = document.getElementById('age').value;
             const bmi = document.getElementById('bmi').value;
             const children = document.getElementById('children').value;
-            const smoker = document.querySelector('input[name="smoker"]:checked').value;
             const region = document.getElementById('region').value;
-            const gender = document.querySelector('input[name="gender"]:checked').value;
             
-            // Simple validation
             if (!age || !bmi || !children || !region) {
+                e.preventDefault();
                 alert('Please fill in all required fields');
-                return;
+                return false;
             }
-            
-            // Mock prediction calculation for Indian context (in a real app, this would be an API call)
-            let baseCost = 25000; // Base cost in INR
-            baseCost += age * 1200;
-            baseCost += (bmi - 22) * 1500; // 22 is considered healthy BMI in India
-            baseCost += children * 8000;
-            
-            // Adjustments for Indian context
-            if (smoker === 'yes') baseCost *= 1.6;
-            
-            // Regional adjustments for India
-            const regionMultipliers = {
-                'north': 1.2,   // Higher costs in North India metros
-                'south': 1.1,   // Southern states
-                'east': 0.9,    // Eastern regions
-                'west': 1.15,   // Western metros
-                'central': 0.95, // Central India
-                'northeast': 1.05 // Northeast
-            };
-            
-            if (regionMultipliers[region]) {
-                baseCost *= regionMultipliers[region];
-            }
-            
-            if (gender === 'male') baseCost *= 1.08;
-            
-            // Format as Indian Rupees with comma separators
-            const formattedCost = new Intl.NumberFormat('en-IN', {
-                maximumFractionDigits: 0
-            }).format(baseCost);
-            
-            // Update the prediction result
-            document.querySelector('.predicted-amount').innerHTML = 
-                `<span class="currency-symbol">₹</span>${formattedCost}`;
-            
-            // Calculate monthly estimate
-            const monthlyCost = baseCost / 12;
-            const formattedMonthly = new Intl.NumberFormat('en-IN', {
-                maximumFractionDigits: 0
-            }).format(monthlyCost);
-            
-            document.querySelectorAll('.detail-card p')[1].innerHTML = 
-                `<span class="currency-symbol" style="font-size: 1rem;">₹</span>${formattedMonthly}`;
-            
-            // Determine risk level based on factors
-            let riskLevel = "Low";
-            let healthScore = 85;
-            
-            if (smoker === 'yes' || bmi > 28) { // Adjusted for Indian BMI standards
-                riskLevel = "High";
-                healthScore = 60;
-            } else if (bmi > 23 || age > 50) { // Asian BMI standard
-                riskLevel = "Medium";
-                healthScore = 72;
-            }
-            
-            document.querySelectorAll('.detail-card p')[0].textContent = riskLevel;
-            document.querySelectorAll('.detail-card p')[2].textContent = `${healthScore}/100`;
-            
-            // Update the description
-            document.querySelector('.result-value p').textContent = 
-                'Estimated annual medical costs in Indian Rupees';
-            
-            // Show the prediction result with animation
-            const resultDiv = document.getElementById('predictionResult');
-            resultDiv.style.display = 'block';
-            
-            // Add pulse animation to the predicted amount
-            const predictedAmount = document.querySelector('.predicted-amount');
-            predictedAmount.style.animation = 'pulse 0.8s ease-in-out';
-            
-            // Scroll to result
-            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            
-            // Reset animation after it completes
-            setTimeout(() => {
-                predictedAmount.style.animation = '';
-            }, 800);
+            // Form will submit to Django backend
         });
         
         // Reset form functionality
         document.getElementById('resetBtn').addEventListener('click', function() {
-            document.getElementById('predictionForm').reset();
-            document.getElementById('predictionResult').style.display = 'none';
-            document.querySelector('input[name="smoker"][value="no"]').checked = true;
-            document.querySelector('input[name="gender"][value="female"]').checked = true;
-            
-            // Reset region dropdown to default
-            document.getElementById('region').selectedIndex = 0;
+            window.location.href = "{% url 'predict' %}";
         });
         
         // Cancel button functionality
         document.querySelector('.btn-cancel').addEventListener('click', function() {
             if (confirm('Are you sure you want to cancel? All entered data will be lost.')) {
-                document.getElementById('predictionForm').reset();
-                document.getElementById('predictionResult').style.display = 'none';
-                document.querySelector('input[name="smoker"][value="no"]').checked = true;
-                document.querySelector('input[name="gender"][value="female"]').checked = true;
-                document.getElementById('region').selectedIndex = 0;
+                window.location.href = "{% url 'predict' %}";
             }
         });
         
         // Add some interactivity to form inputs
         const formInputs = document.querySelectorAll('.form-control');
         formInputs.forEach(input => {
-            // Add focus effect
             input.addEventListener('focus', function() {
                 this.parentElement.style.transform = 'translateY(-2px)';
             });
@@ -794,16 +704,16 @@
             });
         });
         
-        // Initialize with Indian context
+        // Show prediction result if it exists
+        {% if predicted_charges %}
         document.addEventListener('DOMContentLoaded', function() {
-            // Update the description in info panel
-            const infoDescription = document.querySelector('.info-content p');
-            infoDescription.innerHTML = 'Our AI-powered tool helps estimate your potential medical costs in <strong>Indian Rupees (₹)</strong> based on demographic and health factors. Get an accurate prediction to better plan your healthcare budget.';
-            
-            // Update disclaimer for Indian context
-            const disclaimerText = document.querySelector('.disclaimer p');
-            disclaimerText.textContent = 'This tool provides estimates based on statistical models and should not replace professional medical or financial advice. Actual expenses may vary based on individual circumstances and healthcare provider rates across different regions in India.';
+            const resultDiv = document.getElementById('predictionResult');
+            if (resultDiv) {
+                resultDiv.style.display = 'block';
+                resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         });
+        {% endif %}
     </script>
 </body>
 </html>
