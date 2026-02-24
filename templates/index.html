@@ -1,73 +1,207 @@
-{% extends "base.html" %}
-
-{% block content %}
-    <h2>Medical Expense Prediction</h2>
-    <form method="POST">
-        {% csrf_token %}
-
-        <div class="form-group">
-            <label for="age">Age</label>
-            <input type="number" name="age" id="age" required>
-        </div>
-
-        <div class="form-group">
-            <label>Gender</label>
-            <div class="radio-group">
-                <label class="radio-option">
-                    <input type="radio" name="gender" value="male" required>
-                    <span>Male</span>
-                </label>
-                <label class="radio-option">
-                    <input type="radio" name="gender" value="female">
-                    <span>Female</span>
-                </label>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="bmi">BMI</label>
-            <input type="number" step="0.1" name="bmi" id="bmi" required>
-        </div>
-
-        <div class="form-group">
-            <label>Smoker</label>
-            <div class="radio-group">
-                <label class="radio-option">
-                    <input type="radio" name="smoker" value="yes" required>
-                    <span>Yes</span>
-                </label>
-                <label class="radio-option">
-                    <input type="radio" name="smoker" value="no">
-                    <span>No</span>
-                </label>
-            </div>
-        </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Expense Predictor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        h2 {
+            color: #667eea;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2rem;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        input[type="number"], select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .radio-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .buttons-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn.ok {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn.ok:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn.cancel {
+            background: #f0f0f0;
+            color: #666;
+        }
+        .btn.cancel:hover {
+            background: #e0e0e0;
+        }
+        .prediction-result {
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            animation: fadeIn 0.5s;
+        }
+        .prediction-result p {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .prediction-result h3 {
+            font-size: 3rem;
+            margin: 0;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .error-message {
+            background: #ff4444;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Medical Expense Predictor</h2>
         
-        <div class="form-group">
-            <label for="children">Number of Children</label>
-            <input type="number" name="children" id="children" required>
-        </div>
+        <form method="POST" action="{% url 'predict' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="age">Age</label>
+                <input type="number" name="age" id="age" required min="1" max="120">
+            </div>
 
-        <div class="form-group">
-            <label for="region">Region</label>
-            <select name="region" id="region" required>
-                <option value="northwest">Northwest</option>
-                <option value="northeast">Northeast</option>
-                <option value="southwest">Southwest</option>
-                <option value="southeast">Southeast</option>
-            </select>
-        </div>
+            <div class="form-group">
+                <label>Gender</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="gender" value="male" required>
+                        <span>Male</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="gender" value="female">
+                        <span>Female</span>
+                    </label>
+                </div>
+            </div>
 
-        <div class="buttons-group">
-            <a href="/" class="btn cancel" style="text-decoration: none; text-align: center;">Reset</a>
-            <button type="submit" class="btn ok">Predict Charges</button>
+            <div class="form-group">
+                <label for="bmi">BMI (Body Mass Index)</label>
+                <input type="number" step="0.1" name="bmi" id="bmi" required min="10" max="60">
+            </div>
+
+            <div class="form-group">
+                <label>Smoker</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="smoker" value="yes" required>
+                        <span>Yes</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="smoker" value="no">
+                        <span>No</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="children">Number of Children</label>
+                <input type="number" name="children" id="children" required min="0" max="10">
+            </div>
+
+            <div class="form-group">
+                <label for="region">Region</label>
+                <select name="region" id="region" required>
+                    <option value="">Select Region</option>
+                    <option value="northwest">Northwest</option>
+                    <option value="northeast">Northeast</option>
+                    <option value="southwest">Southwest</option>
+                    <option value="southeast">Southeast</option>
+                </select>
+            </div>
+
+            <div class="buttons-group">
+                <a href="{% url 'predict' %}" class="btn cancel" style="text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center;">Reset</a>
+                <button type="submit" class="btn ok">Predict Charges</button>
+            </div>
+        </form>
+        
+        {% if predicted_charges %}
+        <div class="prediction-result">
+            <p>Your Predicted Medical Expense</p>
+            <h3>${{ predicted_charges|floatformat:2 }}</h3>
         </div>
-    </form>
-    
-    {% if predicted_charges %}
-    <div class="prediction-result" id="prediction-box">
-        <p>Your Predicted Medical Expense</p>
-        <h3>${{ predicted_charges|floatformat:2 }}</h3>
+        {% endif %}
     </div>
-    {% endif %}
-{% endblock %}
+</body>
+</html>
