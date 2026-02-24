@@ -636,13 +636,15 @@
                         <div class="detail-card">
                             <i class="fas fa-calendar-alt"></i>
                             <h4>Monthly Estimate</h4>
-                            <p><span class="currency-symbol" style="font-size: 1rem;">$</span>{% if predicted_charges %}{{ predicted_charges|floatformat:2|add:"0"|floatformat:0|divisibleby:12 }}{% else %}0{% endif %}</p>
+                            <p><span class="currency-symbol" style="font-size: 1rem;">$</span>{% if predicted_charges %}{{ predicted_charges|floatformat:2 }}{% else %}0{% endif %}</p>
                         </div>
                         <div class="detail-card">
                             <i class="fas fa-heartbeat"></i>
                             <h4>Health Score</h4>
                             <p>72/100</p>
                         </div>
+                    </div>
+                </div>
                     </div>
                 </div>
                 
