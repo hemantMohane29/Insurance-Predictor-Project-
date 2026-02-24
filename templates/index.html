@@ -1,1 +1,74 @@
 {% extends "base.html" %}
+
+{% block content %}
+    <h2>Medical Expense Prediction</h2>
+    <form method="POST" action="{% url 'predict' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="age">Age</label>
+            <input type="number" name="age" id="age" required>
+        </div>
+
+        <div class="form-group">
+            <label>Gender</label>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="gender" value="male" required>
+                    <span>Male</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="gender" value="female">
+                    <span>Female</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="bmi">BMI</label>
+            <input type="number" step="0.1" name="bmi" id="bmi" required>
+        </div>
+
+        <div class="form-group">
+            <label>Smoker</label>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="smoker" value="yes" required>
+                    <span>Yes</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="smoker" value="no">
+                    <span>No</span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="children">Number of Children</label>
+            <input type="number" name="children" id="children" required>
+        </div>
+
+        <div class="form-group">
+            <label for="region">Region</label>
+            <select name="region" id="region" required>
+                <option value="">Select Region</option>
+                <option value="northwest">Northwest</option>
+                <option value="northeast">Northeast</option>
+                <option value="southwest">Southwest</option>
+                <option value="southeast">Southeast</option>
+            </select>
+        </div>
+
+        <div class="buttons-group">
+            <a href="{% url 'predict' %}" class="btn cancel" style="text-decoration: none; text-align: center;">Reset</a>
+            <button type="submit" class="btn ok">Predict Charges</button>
+        </div>
+    </form>
+    
+    {% if predicted_charges %}
+    <div class="prediction-result" id="prediction-box">
+        <p>Your Predicted Medical Expense</p>
+        <h3>${{ predicted_charges|floatformat:2 }}</h3>
+    </div>
+    {% endif %}
+{% endblock %}

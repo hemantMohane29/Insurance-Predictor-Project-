@@ -17,7 +17,7 @@ except Exception as e:
     model_columns = None
 
 def index(requests):
-    return render(requests, 'base.html')
+    return render(requests, 'index.html')
 
 def predict_insurance(request):
     predicted_charges = None
@@ -62,4 +62,4 @@ def predict_insurance(request):
         'predicted_charges': predicted_charges,
         'error_message': error_message
     }
-    return render(request, 'base.html', context)
+    return render(request, 'index.html', context)
