@@ -1,15 +1,18 @@
 from django.shortcuts import render, HttpResponse
+from django.conf import settings
+import joblib
+import pandas as pd
+import os
+
+# Load the trained model and the column list with proper paths
+model_path = os.path.join(settings.BASE_DIR, 'linear_regression_model.pkl')
+columns_path = os.path.join(settings.BASE_DIR, 'model_columns.pkl')
+
+model = joblib.load(model_path)
+model_columns = joblib.load(columns_path)
 
 def index(requests):
     return render(requests, 'index.html')
-
-# Create your views here.
-import joblib
-import pandas as pd
-
-# Load the trained model and the column list directly
-model = joblib.load('linear_regression_model.pkl')
-model_columns = joblib.load('model_columns.pkl')
 
 def predict_insurance(request):
     predicted_charges = None
