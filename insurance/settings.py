@@ -23,13 +23,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-hnobo%1^eqj1t4r&6tddqf#m*0^*s5uyvnc-4fxhue5m*x_&xz')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True  # Temporarily enable to see errors
+DEBUG = os.environ.get("DJANGO_DEBUG", "").strip().lower() in {"1", "true", "yes", "on"}
 
-ALLOWED_HOSTS = ['*']
+def _csv_env(name: str) -> list[str]:
+    value = os.environ.get(name, "")
+    return [part.strip() for part in value.split(",") if part.strip()]
 
-# CSRF settings for production
-CSRF_TRUSTED_ORIGINS = [
-    'https://*.onrender.com',
+# Hosts / CSRF
+ALLOWED_HOSTS = _csv_env("DJANGO_ALLOWED_HOSTS") or ["localhost", "127.0.0.1"]
+
+# Django 4+ requires exact scheme+host origins here (no wildcards).
+CSRF_TRUSTED_ORIGINS = _csv_env("DJANGO_CSRF_TRUSTED_ORIGINS") or [
+    "https://insurance-predictor-production-c99c.up.railway.app",
 ]
 
 
