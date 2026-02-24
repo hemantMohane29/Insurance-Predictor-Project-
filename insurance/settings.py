@@ -25,7 +25,12 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-hnobo%1^eqj1t4r&6tddq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['*'] if DEBUG else os.environ.get('ALLOWED_HOSTS', '.onrender.com').split(',')
+ALLOWED_HOSTS = ['*']
+
+# CSRF settings for production
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+]
 
 
 # Application definition
