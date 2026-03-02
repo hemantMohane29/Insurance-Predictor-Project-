@@ -126,7 +126,7 @@ git push origin master
 
 3. **Generate Domain**
    - Go to project settings
-   - Click "Generate Domain" to get a public URL
+   - Click "https://web-production-00dd.up.railway.app/" to get a public URL
 
 ### Deploy to Render
 
