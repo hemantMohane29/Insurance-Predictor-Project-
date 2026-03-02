@@ -30,11 +30,12 @@ def _csv_env(name: str) -> list[str]:
     return [part.strip() for part in value.split(",") if part.strip()]
 
 # Hosts / CSRF
-ALLOWED_HOSTS = _csv_env("DJANGO_ALLOWED_HOSTS") or ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = _csv_env("DJANGO_ALLOWED_HOSTS") or ["*"]
 
 # Django 4+ requires exact scheme+host origins here (no wildcards).
 CSRF_TRUSTED_ORIGINS = _csv_env("DJANGO_CSRF_TRUSTED_ORIGINS") or [
-    "https://insurance-predictor-production-c99c.up.railway.app",
+    "https://*.railway.app",
+    "https://*.up.railway.app",
 ]
 
 
